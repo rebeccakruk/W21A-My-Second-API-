@@ -5,8 +5,9 @@ from dbhelpers import run_statement, connect_db
 app = Flask(__name__)
 
 @app.get('/api/apistore_items')
-def get_items():
-    result = run_statement("CALL list_items()")
+def get_items(result, limit='3'):
+    for i
+    result = run_statement("CALL list_items(?)")
     if (type(result) == list):
         result_json = json.dumps(result, default=str)
         items = json.loads(result_json)
@@ -39,8 +40,6 @@ def update_item():
     if result == None:
         return "You've successfully updated the quantity to {}".format(item_quantity)
     
-
-
 @app.delete('/api/apistore_delete')
 def clear_item():
     old_item = request.json.get('old_item')
@@ -51,5 +50,45 @@ def clear_item():
         return "You must enter a valid item id number"
     else:
         "Please try again"
+
+@app.get('/api/apistore_ee')
+def get_ee():
+    ee_id = '2'
+    result = run_statement("CALL ee_info(?)", [ee_id])
+    if (type(result) == list):
+        result_json = json.dumps(result, default=str)
+        employees = json.loads(result_json)
+        return result
+    else:
+        return "Something went wrong, please try again"
+
+@app.post('/api/apistore_new')
+def post_new():
+    name = 'Kermit thee Frog'
+    wage = '25.00'
+    result = run_statement("CALL new_ee(?,?)", [name, wage])
+    if result == None:
+        return "You have successfully added a new employee: {}, at {} per hour.".format(name, wage)
+    else:
+        return "hmmmm...."
+    
+@app.patch('/api/apistore_adjust')
+def adj_wage():
+    ee_id = '7'
+    new_wage = '21.00'
+    result = run_statement("CALL adj_ee(?,?)", [ee_id, new_wage])
+    if result == None:
+        return "You have successfully adjusted the hourly wage to {}".format(new_wage)
+    else:
+        return "Please try again"
+
+@app.delete('/api/apistore_del_ee')
+def delete_ee():
+    ee_id = '3'
+    result = run_statement("CALL clear_ee(?)", [ee_id])
+    if result == None:
+        return "You have successfully deleted {} from your employees.".format(ee_id)
+    else:
+        return "hmmm..."
 
 app.run(debug = True)
