@@ -2,4 +2,4 @@ host='34.171.89.130'
 port=3306
 user='innotech'
 password='oranges'
-database='api2'
+database='apistore'
