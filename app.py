@@ -4,10 +4,9 @@ from dbhelpers import run_statement, connect_db
 
 app = Flask(__name__)
 
-@app.get('/api/apistore_items')
-def get_items(result, limit='3'):
-    for i
-    result = run_statement("CALL list_items(?)")
+@app.get('/api/apistore/item')
+def get_items():
+    result = run_statement("CALL list_items()")
     if (type(result) == list):
         result_json = json.dumps(result, default=str)
         items = json.loads(result_json)
@@ -15,7 +14,7 @@ def get_items(result, limit='3'):
     else:
         return "Something went wrong, please try again"
 
-@app.post('/api/apistore_post')
+@app.post('/api/apistore/item')
 def post_item():
     new_item = request.json.get('new_item')
     new_description = request.json.get('new_description')
@@ -32,15 +31,15 @@ def post_item():
     else:
         "Please try again"
 
-@app.patch('/api/apistore_patch')
+@app.patch('/api/apistore/item')
 def update_item():
-    item_quantity = "29"
-    item_id = "10"
+    item_quantity = request.json.get('quantity')
+    item_id = request.json.get('item_id')
     result = run_statement("CALL adjust_quantity(?,?)", [item_quantity, item_id])
     if result == None:
         return "You've successfully updated the quantity to {}".format(item_quantity)
     
-@app.delete('/api/apistore_delete')
+@app.delete('/api/apistore/item')
 def clear_item():
     old_item = request.json.get('old_item')
     result = run_statement("CALL clear_item(?)", [old_item])
@@ -51,28 +50,30 @@ def clear_item():
     else:
         "Please try again"
 
-@app.get('/api/apistore_ee')
+@app.get('/api/apistore/employee')
 def get_ee():
-    ee_id = '2'
+    ee_id = request.json.get('ee_id')
     result = run_statement("CALL ee_info(?)", [ee_id])
-    if (type(result) == list):
-        result_json = json.dumps(result, default=str)
-        employees = json.loads(result_json)
+    if result == None:
+        return "Please enter a valid employee id"
+    elif result != None:
         return result
     else:
         return "Something went wrong, please try again"
 
-@app.post('/api/apistore_new')
+@app.post('/api/apistore/employee')
 def post_new():
-    name = 'Kermit thee Frog'
+    name = 'lbfsdfarry'
     wage = '25.00'
+    # name = request.json.get('name')
+    # wage = request.json.get('wage')
     result = run_statement("CALL new_ee(?,?)", [name, wage])
     if result == None:
         return "You have successfully added a new employee: {}, at {} per hour.".format(name, wage)
     else:
         return "hmmmm...."
     
-@app.patch('/api/apistore_adjust')
+@app.patch('/api/apistore/employee')
 def adj_wage():
     ee_id = '7'
     new_wage = '21.00'
@@ -82,7 +83,7 @@ def adj_wage():
     else:
         return "Please try again"
 
-@app.delete('/api/apistore_del_ee')
+@app.delete('/api/apistore/employee')
 def delete_ee():
     ee_id = '3'
     result = run_statement("CALL clear_ee(?)", [ee_id])
